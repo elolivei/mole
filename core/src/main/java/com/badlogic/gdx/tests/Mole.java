@@ -2,16 +2,14 @@ package com.badlogic.gdx.tests;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
@@ -43,17 +41,17 @@ public class Mole extends ApplicationAdapter {
     private BitmapFont font;
     private int placar = 0;
 
-
     @Override
     public void create() {
 
         // cria a camera e o Viewport
         camera = new OrthographicCamera();
-        viewport = new StretchViewport(vScreenHeight,vScreenHeight,camera);
+        viewport = new FitViewport(800, 480, camera);
         viewport.apply();
-        camera.position.set(camera.viewportWidth/2,camera.viewportHeight/2,0);
+        camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
+        camera.update();
 
-        // Tela de fundo
+        //cria a tela de fundo
         batch = new SpriteBatch();
         backgroundTexture = new Texture("data/ground.jpg");
 
@@ -71,8 +69,8 @@ public class Mole extends ApplicationAdapter {
 
         @Override
         public void render() {
-            camera.update();
             ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
+            // Desenha usando as coordenadas do mundo
             batch.setProjectionMatrix(camera.combined);
             batch.begin();
             batch.draw(backgroundTexture,0,0,vScreenWidth,vScreenHeight);
@@ -80,7 +78,12 @@ public class Mole extends ApplicationAdapter {
             toca1.render(batch);
             toca2.render(batch);
             toca3.render(batch);
-            font.draw(batch, "Placar: " + String.valueOf(placar), 20 , vScreenHeight - 10);
+            batch.end();
+
+            //Desenha o placar fora da projeção do mundo
+            batch.setProjectionMatrix(camera.projection);
+            batch.begin();
+            font.draw(batch,"Placar: " + String.valueOf(placar) ,200 ,200);
             batch.end();
             testaClique();
         }
@@ -96,16 +99,37 @@ public class Mole extends ApplicationAdapter {
     }
 
     void testaClique() {
-        // Check if the screen is touched
+        // Verifica se a toupeira foi tocada
         if (Gdx.input.justTouched()) {
-            // Get input touch coordinates and set the temp vector with these values
-            if (toupeira.handleTouch(Gdx.input.getX(), Gdx.input.getY(),viewport))
+            // Criar um Vector3 com as coordenadas de toque
+            // (as coordenadas de toque são em cordenadas de tela)
+            Vector3 touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+
+            // Converter para cordenadas do mundo
+            viewport.unproject(touchPos);
+
+            // Criar um novo Rectangle para a cordenada de toque
+            Rectangle touchRectangle;
+            touchRectangle = new Rectangle(touchPos.x, touchPos.y, 1, 1);
+
+            // Criar um rectangle do sprite
+            Rectangle spriteRect = toupeira.toupeira.getBoundingRectangle();
+
+            // Verifica se os rectangulos colidem
+            if(spriteRect.overlaps(touchRectangle)) {
+                // Clique/toque detectado no sprite!
+                Gdx.app.log("Touch", "Sprite touched!");
+                toupeira.handleTouch();
                 placar += 1;
+            }
+            else {
+                Gdx.app.log("Touch", "Sprite not touched!");
+            }
         }
     }
     @Override
     public void resize(int width, int height)
     {
         viewport.update(width, height);
-    }
+        }
 }

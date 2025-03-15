@@ -6,8 +6,6 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.Random;
 
@@ -71,8 +69,6 @@ public class Toupeira {
 
         // Se retirar o comentário habilita o log (aba logcat)
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
-        Gdx.app.log("Tag", "largura " + String.valueOf(deslocaX));
-        Gdx.app.log("Tag", "altura " + String.valueOf(deslocaY));
 
     }
 
@@ -96,14 +92,18 @@ public class Toupeira {
         // Atualiza a posição da toupeira de acordo com posição da toca
         posicaoX = tAtual.posX + deslocaX;
         posicaoY = tAtual.posY + deslocaY;
+        //Gdx.app.log("Desloca", "largura " + String.valueOf(deslocaX));
+        //Gdx.app.log("Desloca", "altura " + String.valueOf(deslocaY));
+        //Gdx.app.log("Toca", "posX " + String.valueOf(tAtual.posX));
+        //Gdx.app.log("Toca", "posY " + String.valueOf(tAtual.posY));
 
         //atualiza a animação  da toupeira
         //atualiza tempo que o frame foi exibido
         // Verifica se o tempo do frame expirou
         toupeira.setRegion(0, 0, larguraMole, elevacaoMole);
         toupeira.setSize(toupeira.getWidth(), elevacaoMole);
+        toupeira.setBounds(posicaoX, posicaoY, toupeira.getWidth(), toupeira.getHeight());
         toupeira.setScale(0.2f, 0.2f);
-        toupeira.setPosition(posicaoX, posicaoY);
 
         elevacaoMole += (sliceMole * direcaoMole);
 
@@ -137,21 +137,13 @@ public class Toupeira {
         hitSound.dispose();
     }
 
-    // verifica se clique do mouse nas cordenadas touxhX e touchY, atingiu a toupeira
-    public boolean handleTouch(float touchX, float touchY, Viewport viewport) {
-        // Converte a cordenada de tela para cordenada de view
-        Vector2 cord = new Vector2(touchX,touchY);
-        cord = viewport.unproject(cord);
+    // Clique atingiu a toupeira
+    public void handleTouch() {
 
-        // Testa se click atingiu a toupeira e caso positico reinicia a toupeira e toca som
-        if((cord.x>=posicaoX)&&cord.x<=(posicaoX+toupeira.getWidth()) && (cord.y>=posicaoY)&&cord.y<=(posicaoY+toupeira.getHeight()) ) {
             elevacaoMole = 0;
             tAtual = sorteia();
             correnteTime = 0.0f;
             direcaoMole=-1;
             hitSound.play();
-            return true;
-        }
-        return false;
     }
 }

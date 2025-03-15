@@ -3,8 +3,8 @@ apply plugin: 'com.android.application'
 
 android {
   namespace "com.badlogic.gdx.tests"
-  compileSdk 34
-  sourceSets {
+    compileSdk 35
+    sourceSets {
     main {
       manifest.srcFile 'AndroidManifest.xml'
       java.setSrcDirs(['src/main/java'])
@@ -26,14 +26,14 @@ android {
   defaultConfig {
     applicationId 'com.badlogic.gdx.tests'
     minSdkVersion 19
-    targetSdkVersion 34
-    versionCode 1
+      targetSdk 35
+      versionCode 1
     versionName "1.0"
     multiDexEnabled true
   }
   compileOptions {
-    sourceCompatibility "11"
-    targetCompatibility "11"
+    sourceCompatibility "1.8"
+    targetCompatibility "1.8"
     coreLibraryDesugaringEnabled true
   }
   buildTypes {
